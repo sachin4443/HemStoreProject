@@ -22,6 +22,20 @@ function whenTime(d) {
 function today() { var d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
 function val(id) { var e = document.getElementById(id); return e ? String(e.value || '').trim() : ''; }
 
+/* ---------------- fit to the window ----------------
+   On a wide window (or when the browser is zoomed out) the whole page is scaled up so it always
+   fills the width the same way as on a normal laptop screen (1440 px wide). Narrow windows and
+   zoom-in use the normal responsive layout. */
+var FIT_BASE = 1440;
+function fitToWindow() {
+  var w = window.innerWidth || document.documentElement.clientWidth;
+  var z = w > FIT_BASE ? Math.min(w / FIT_BASE, 3) : 1;
+  document.body.style.zoom = z === 1 ? '' : String(Math.round(z * 1000) / 1000);
+}
+window.addEventListener('resize', fitToWindow);
+document.addEventListener('DOMContentLoaded', fitToWindow);
+if (document.body) fitToWindow();
+
 /* ---------------- API ---------------- */
 function api(method, path, body) {
   var opts = { method: method, credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' } };

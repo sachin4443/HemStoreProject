@@ -82,12 +82,12 @@ details summary { cursor: pointer; padding: 6px 0; }
 
 /* Wide screens and browser zoom-out: use the space instead of a narrow column. */
 @media (min-width: 861px) {
-  .s-head .in, .s-main { max-width: 1680px; }
+  .s-head .in, .s-main { max-width: none; padding-left: max(24px, 2vw); padding-right: max(24px, 2vw); }
   .p-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
   .cat-grid { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
   .cat-grid.big { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
   .kpis { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
-  .w-body { max-width: 1680px; }
+  .w-body { max-width: none; }
   .brand-banner img { max-width: 960px; }
 }
 
@@ -98,3 +98,16 @@ details summary { cursor: pointer; padding: 6px 0; }
 .redeem-slider input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 30px; height: 30px; border-radius: 50%; background: var(--plum); border: 4px solid #fff; box-shadow: 0 2px 8px rgba(35,25,66,.35); }
 .redeem-slider input[type=range]::-moz-range-thumb { width: 24px; height: 24px; border-radius: 50%; background: var(--plum); border: 4px solid #fff; box-shadow: 0 2px 8px rgba(35,25,66,.35); }
 .redeem-slider input[type=range]:disabled { opacity: .5; cursor: not-allowed; }
+
+/* Medium widths (e.g. zoom 125–175% on a laptop): the top menu no longer fits, use the bottom tab bar. */
+.s-nav a { white-space: nowrap; }
+@media (max-width: 1180px) {
+  .s-nav { display: none; }
+  .tabbar { display: grid; grid-template-columns: repeat(5, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 45; background: var(--card); border-top: 1px solid var(--line);
+    padding: 6px max(6px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(6px, env(safe-area-inset-left, 0px)); }
+  .tabbar a { display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: var(--muted); font-weight: 800; font-size: .72rem; padding: 4px; border-radius: 12px; position: relative; }
+  .tabbar a .ico { width: 24px; height: 24px; }
+  .tabbar a.on { color: var(--plum); background: var(--plum-soft); }
+  .tabbar .badge { position: absolute; top: 0; right: 18%; background: var(--magenta); color: #fff; font-size: .62rem; font-weight: 900; min-width: 17px; height: 17px; border-radius: 9px; display: grid; place-items: center; }
+  .wallet-pill { white-space: nowrap; }
+}
