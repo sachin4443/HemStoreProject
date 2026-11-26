@@ -85,8 +85,8 @@ namespace HemStore.Services
         {
             var settings = await _settings.GetAsync();
             if (!settings.StoreOpen) throw new StoreException("The store is closed right now. Please try again later.");
-            if (points < settings.MinRedeem || points % settings.MinRedeem != 0)
-                throw new StoreException($"Redeem in steps of {settings.MinRedeem} points.");
+            // Students choose any number of points (slider); only what they have and the monthly limit apply.
+            if (points < 1) throw new StoreException("Choose how many points to redeem.");
 
             var hv = await _hv.StudentAsync(studentId, fresh: true);
 

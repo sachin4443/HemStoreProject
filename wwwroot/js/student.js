@@ -86,12 +86,11 @@ function emptyCard(icon, title, text, link) {
 VIEWS['s-home'] = student(function () {
   var w = S.store.wallet, set = S.store.settings, prods = S.catalog.products;
   var afford = prods.filter(canBuy), locked = prods.filter(function (p) { return !canBuy(p); });
-  var minR = set.minRedeem, toRedeem = Math.max(0, minR - w.available);
-  var pr = S.store.profile || {};
   var banner = money() < 1
-    ? '<div class="info-box">' + I('sparkle') + '<div><b>Turn your points into shopping money!</b><br>' + (w.available >= minR
-        ? 'You have ' + num(w.available) + ' points. Redeem ' + minR + ' points to get ' + rs(minR * pv()) + ' for shopping. <a href="#s-redeem">Redeem now →</a>'
-        : 'Earn ' + num(toRedeem) + ' more points in HEM Virtues to redeem. <a href="#s-earn">How to earn points →</a>') + '</div></div>' : '';
+    ? '<div class="info-box">' + I('sparkle') + '<div><b>Turn your points into shopping money!</b><br>' + (w.available > 0
+        ? 'You have ' + num(w.available) + ' points = ' + rs(w.available * pv()) + '. Redeem as many as you like. <a href="#s-redeem">Redeem now →</a>'
+        : 'Earn points in HEM Virtues to start shopping. <a href="#s-earn">How to earn points →</a>') + '</div></div>' : '';
+  var pr = S.store.profile || {};
   var cls = [pr.standard ? 'Class ' + pr.standard + (pr.division ? ' – ' + pr.division : '') : '', pr.school].filter(Boolean).join(' · ');
   return studentShell('s-home', logo(true) +
     '<section class="hello">' +
@@ -104,9 +103,7 @@ VIEWS['s-home'] = student(function () {
           '<div class="bal-box"><span>Points left</span><b class="num">' + num(w.available) + '</b><span class="hi">बचे पॉइंट्स</span></div>' +
           '<div class="bal-box money"><span>Shopping Money</span><b class="num">' + rs(money()) + '</b><span class="hi">खरीदारी के पैसे</span></div></div>' +
         '<div class="small muted" style="margin-top:10px">Earned in HEM Virtues: <b>' + num(w.earned) + '</b> · Redeemed: <b>' + num(w.redeemed) + '</b>' + (w.stale ? ' · <span class="need">' + I('info') + 'last known total</span>' : '') + '</div>' +
-        '<div style="margin-top:10px"><div class="row between small"><b>Next reward: ' + minR + ' points</b><span class="muted">' + Math.min(w.available, minR) + ' / ' + minR + '</span></div>' +
-        '<div class="progress" style="margin-top:6px"><i style="width:' + Math.min(100, w.available / minR * 100) + '%"></i></div></div>' +
-        (w.available >= minR ? '<a class="btn primary block" style="margin-top:12px" href="#s-redeem">' + I('gift') + ' Redeem ' + minR + ' points = ' + rs(minR * pv()) + '</a>' : '') +
+        (w.available > 0 ? '<a class="btn primary block" style="margin-top:12px" href="#s-redeem">' + I('gift') + ' Redeem points (worth ' + rs(w.available * pv()) + ')</a>' : '') +
       '</div></section>' + banner +
     '<section class="stack"><div class="sec-head"><h2>' + I('grid') + ' Shop by category</h2><a href="#s-categories" class="btn sm line">All categories ' + I('chev') + '</a></div>' +
       '<div class="cat-grid">' + S.catalog.categories.map(function (c) {
@@ -140,7 +137,6 @@ VIEWS['s-earn'] = student(function () {
 VIEWS['s-wallet'] = function () {
   return Promise.all([loadStudent(false), api('GET', '/api/store/wallet')]).then(function (r) {
     var j = r[1], w = j.wallet; S.store.wallet = w;
-    var minR = w.minRedeem;
     var label = { redeem: 'Points changed to shopping money', order: 'Order', refund: 'Order cancelled – money back', adjust: 'Points change by HEM' };
     return studentShell('s-wallet',
       '<div class="page-title"><div><h1>My Points Wallet</h1><p>Points you earned and money you can spend. <span class="hi">मेरा पॉइंट्स वॉलेट</span></p></div></div>' +
@@ -149,9 +145,7 @@ VIEWS['s-wallet'] = function () {
         '<div class="balance-card"><span class="label">My Points · पॉइंट्स</span><div class="row" style="align-items:flex-end;margin-top:6px"><span class="big num">' + num(w.available) + '</span><span class="muted" style="font-weight:800;padding-bottom:6px">points left</span></div>' +
           '<div class="pts-split"><div><span>Earned in HEM Virtues</span><b class="num">' + num(w.earned) + '</b></div><div><span>Redeemed in the store</span><b class="num">− ' + num(w.redeemed) + '</b></div>' +
           (w.adjusted ? '<div><span>Changes by HEM</span><b class="num">' + (w.adjusted > 0 ? '+ ' : '− ') + num(Math.abs(w.adjusted)) + '</b></div>' : '') + '</div>' +
-          '<div class="muted small" style="margin-top:6px">1 point = ' + rs(w.pointValue) + ' · You can redeem in steps of ' + minR + ' points.</div>' +
-          '<div style="margin-top:12px"><div class="progress"><i style="width:' + Math.min(100, w.available / minR * 100) + '%"></i></div><div class="small muted" style="margin-top:4px">' +
-          (w.available >= minR ? 'You can redeem now!' : 'Earn ' + (minR - w.available) + ' more points to redeem.') + '</div></div>' +
+          '<div class="muted small" style="margin-top:6px">1 point = ' + rs(w.pointValue) + ' · Your ' + num(w.available) + ' points are worth <b>' + rs(w.available * w.pointValue) + '</b>. Redeem any number of points.</div>' +
           '<div class="row" style="margin-top:14px"><a class="btn primary" href="#s-redeem">' + I('gift') + ' Redeem points</a><a class="btn line" href="#s-earn">' + I('star') + ' Earn more</a></div></div>' +
         '<div class="balance-card" style="border-color:#BDE7C9"><span class="label" style="color:#1D7339">Shopping Money · खरीदारी के पैसे</span><div class="big num" style="margin-top:6px">' + rs(w.money) + '</div>' +
           '<div class="muted small" style="margin-top:6px">Use it in HEM-Store. It never goes to cash.</div>' +
@@ -169,32 +163,48 @@ VIEWS['s-wallet'] = function () {
 
 /* ---------------- redeem ---------------- */
 VIEWS['s-redeem'] = student(function (arg) {
-  var w = S.store.wallet, minR = w.minRedeem, leftMonth = Math.max(0, w.maxRedeemPerMonth - w.redeemedThisMonth);
+  var w = S.store.wallet, leftMonth = Math.max(0, w.maxRedeemPerMonth - w.redeemedThisMonth);
   if (arg === 'done') {
     return studentShell('s-wallet', '<div class="celebrate pop">' + confetti() + '<div class="tick">' + I('check') + '</div><h1>' + esc(S.lastRedeem || 'Shopping money added!') + '</h1>' +
       '<p style="font-size:1.05rem;margin-top:6px">Your points are now shopping money. <span class="hi">पॉइंट्स अब खरीदारी के पैसे हैं</span></p>' +
       '<div class="bal-split" style="max-width:460px;margin:18px auto 0"><div class="bal-box"><span>Points left</span><b class="num">' + num(w.available) + '</b></div><div class="bal-box money"><span>Shopping money</span><b class="num">' + rs(w.money) + '</b></div></div>' +
       '<div class="row" style="justify-content:center;margin-top:18px"><a class="btn primary lg" href="#s-products">' + I('bag') + ' Go shopping</a></div></div>');
   }
-  var max = Math.min(w.available, leftMonth), opts = [];
-  for (var k = 1; k <= 4 && k * minR <= Math.max(max, minR * 3); k++) opts.push(k * minR);
-  if (max >= minR * 5) opts.push(Math.floor(max / minR) * minR);
-  if (!S.redeemPick || S.redeemPick > max) S.redeemPick = max >= minR ? minR : 0;
+  var max = Math.min(w.available, leftMonth);
+  if (!S.redeemPick || S.redeemPick > max) S.redeemPick = max;
   var pick = S.redeemPick;
+  var can = max > 0 && S.store.settings.storeOpen;
   return studentShell('s-wallet',
-    '<div class="page-title"><div><a href="#s-wallet" class="btn sm line">' + I('back') + ' Wallet</a><h1 style="margin-top:8px">Redeem points</h1><p>Change points into shopping money. <span class="hi">पॉइंट्स को खरीदारी के पैसों में बदलें</span></p></div></div>' +
-    (max < minR ? '<div class="warn-box">' + I('lock') + '<span>' + (w.available < minR ? 'You need at least ' + minR + ' points to redeem. You have ' + num(w.available) + '. <a href="#s-earn">Earn more points</a>' : 'You have reached this month\'s limit of ' + num(w.maxRedeemPerMonth) + ' points. You can redeem again next month.') + '</span></div>' : '') +
-    '<div class="card stack"><h3>1. How many points?</h3><div class="redeem-pick">' + opts.map(function (o) {
-      var dis = o > max;
-      return '<button class="r-opt' + (pick === o ? ' on' : '') + '" data-act="pickRedeem" data-id="' + o + '" ' + (dis ? 'disabled' : '') + '><b>' + num(o) + '</b><span class="small muted">points</span><div class="pill green" style="margin-top:6px">= ' + rs(o * pv()) + '</div></button>';
-    }).join('') + '</div>' +
-      '<p class="small muted">You have <b>' + num(w.available) + ' points</b>. Redeem in steps of ' + minR + '. This month you can still redeem ' + num(leftMonth) + ' points.</p>' +
-      '<h3>2. You will get</h3><div class="convert"><div class="cv"><b class="num" style="color:#8A5A00">' + num(pick) + '</b><span class="small"><b>points</b></span></div><div class="arrow">' + I('arrow') + '</div>' +
-      '<div class="cv"><b class="num" style="color:var(--leaf)">' + rs(pick * pv()) + '</b><span class="small"><b>shopping money</b></span></div></div>' +
+    '<div class="page-title"><div><a href="#s-wallet" class="btn sm line">' + I('back') + ' Wallet</a><h1 style="margin-top:8px">Redeem points</h1><p>Slide to choose how many points become shopping money. <span class="hi">स्लाइड करके पॉइंट्स चुनें</span></p></div></div>' +
+    (max < 1 ? '<div class="warn-box">' + I('lock') + '<span>' + (w.available < 1 ? 'You have no points to redeem yet. <a href="#s-earn">Earn points</a>' : 'You have reached this month\'s limit of ' + num(w.maxRedeemPerMonth) + ' points. You can redeem again next month.') + '</span></div>' : '') +
+    '<div class="card stack"><h3>1. How many points?</h3>' +
+      '<div class="redeem-slider"><input type="range" id="rdRange" min="' + (max > 0 ? 1 : 0) + '" max="' + max + '" step="1" value="' + pick + '" aria-label="Points to redeem"' + (can ? '' : ' disabled') + ' style="--fill:' + (max ? pick / max * 100 : 0) + '%">' +
+      '<div class="row between small muted"><span>' + (max > 0 ? 1 : 0) + '</span><span>' + num(max) + ' points</span></div></div>' +
+      '<div class="row"><label class="small" for="rdNum" style="font-weight:800">Points</label><input class="input num" id="rdNum" type="number" inputmode="numeric" min="1" max="' + max + '" value="' + pick + '" style="max-width:140px"' + (can ? '' : ' disabled') + '>' +
+      [25, 50, 75, 100].map(function (pc) { return '<button type="button" class="chip" data-act="rdPct" data-id="' + pc + '"' + (can ? '' : ' disabled') + '>' + (pc === 100 ? 'All' : pc + '%') + '</button>'; }).join('') + '</div>' +
+      '<p class="small muted">You have <b>' + num(w.available) + ' points</b>.' + (w.maxRedeemPerMonth < 1e9 ? ' This month you can still redeem ' + num(leftMonth) + ' points.' : '') + '</p>' +
+      '<h3>2. You will get</h3><div class="convert"><div class="cv"><b class="num" style="color:#8A5A00" id="rdPts">' + num(pick) + '</b><span class="small"><b>points</b></span></div><div class="arrow">' + I('arrow') + '</div>' +
+      '<div class="cv"><b class="num" style="color:var(--leaf)" id="rdMoney">' + rs(pick * pv()) + '</b><span class="small"><b>shopping money</b></span></div></div>' +
       '<div class="info-box">' + I('info') + '<span>1 point = ' + rs(pv()) + '. Shopping money can only be used in HEM-Store. Redeemed points cannot be changed back.</span></div>' +
-      '<button class="btn primary lg block" data-act="redeem" ' + (pick >= minR && pick <= max && S.store.settings.storeOpen ? '' : 'disabled') + '>' + I('gift') + ' Redeem ' + num(pick) + ' points <span class="sub">पॉइंट्स बदलें</span></button></div>');
+      '<button class="btn primary lg block" data-act="redeem" id="rdBtn" ' + (can && pick >= 1 ? '' : 'disabled') + '>' + I('gift') + ' Redeem <span id="rdBtnPts">' + num(pick) + '</span> points <span class="sub">पॉइंट्स बदलें</span></button></div>');
 });
-ACT.pickRedeem = function (el, n) { S.redeemPick = Number(n); render(); };
+function rdSet(n) {
+  var r = document.getElementById('rdRange'); if (!r) return;
+  var max = Number(r.max); n = Math.max(max > 0 ? 1 : 0, Math.min(max, Math.round(Number(n) || 0)));
+  S.redeemPick = n;
+  r.value = n; r.style.setProperty('--fill', (max ? n / max * 100 : 0) + '%');
+  var box = document.getElementById('rdNum'); if (document.activeElement !== box) box.value = n;
+  document.getElementById('rdPts').textContent = num(n);
+  document.getElementById('rdMoney').textContent = rs(n * pv());
+  document.getElementById('rdBtnPts').textContent = num(n);
+  document.getElementById('rdBtn').disabled = !(n >= 1 && S.store.settings.storeOpen);
+}
+document.addEventListener('input', function (e) {
+  if (e.target.id === 'rdRange') rdSet(e.target.value);
+  if (e.target.id === 'rdNum' && e.target.value !== '') rdSet(e.target.value);
+});
+document.addEventListener('change', function (e) { if (e.target.id === 'rdNum') { rdSet(e.target.value); e.target.value = S.redeemPick; } });
+ACT.rdPct = function (el, pc) { var max = Number(document.getElementById('rdRange').max); rdSet(Math.max(1, Math.round(max * Number(pc) / 100))); };
 ACT.redeem = function (btn) {
   busy(btn, api('POST', '/api/store/redeem', { points: S.redeemPick }).then(function (j) {
     S.store.wallet = j.wallet; S.lastRedeem = j.message; S.redeemPick = 0; go('s-redeem/done');

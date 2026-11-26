@@ -65,7 +65,9 @@ function busy(btn, promise) {
 /* ---------------- logo ---------------- */
 function logo(big, href) {
   if (big) return '<div class="brand-banner"><img src="/img/hem-store-banner-web.jpg" alt="HEM-Store – Student Rewards &amp; Gift Store"></div>';
-  return '<a class="logo real" href="' + (href || '#') + '"><img src="/img/hem-store-logo-web.png" alt="HEM-Store – Student Rewards &amp; Gift Store"></a>';
+  // Emblem + wordmark in text: always complete and sharp at any size or zoom.
+  return '<a class="logo" href="' + (href || '#') + '" aria-label="HEM-Store – Student Rewards &amp; Gift Store"><img class="emb" src="/img/emblem.png" alt="">' +
+    '<span class="word"><span class="wm"><span class="a">HEM-</span><span class="b">Store</span></span><span class="tagline">Student Rewards &amp; Gift Store</span></span></a>';
 }
 
 /* ---------------- charts ---------------- */

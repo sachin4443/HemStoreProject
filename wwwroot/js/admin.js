@@ -47,15 +47,15 @@ VIEWS['a-points'] = adminView(function () {
   return api('GET', '/api/admin/settings').then(function (j) {
     var s = j.settings;
     var names = { point_value: 'Value of 1 point', min_redeem: 'Minimum points to redeem', max_redeem_per_month: 'Maximum redeem per month', store_open: 'Store open', delivery_days: 'Delivery time' };
-    return workShell('a', 'a-points', 'Points configuration', 'Rules for redeeming and spending points. Students earn points in HEM Virtues.',
+    return workShell('a', 'a-points', 'Points configuration', 'Rules for redeeming and spending points. Students earn points in HEM Virtues and can redeem any number of them.',
       '<div class="cols"><form class="card" data-submit="saveCfg" novalidate><h3>Redeeming and spending</h3>' +
         '<div class="setting"><div><b>Value of 1 point (₹)</b><div class="small muted">Shopping money a student gets for one point</div></div><input class="input num" id="cfgPv" inputmode="decimal" value="' + s.pointValue + '"></div>' +
-        '<div class="setting"><div><b>Minimum points to redeem</b><div class="small muted">Students redeem in steps of this many points</div></div><input class="input num" id="cfgMin" inputmode="numeric" value="' + s.minRedeem + '"></div>' +
+        '<input type="hidden" id="cfgMin" value="' + s.minRedeem + '">' +
         '<div class="setting"><div><b>Maximum redeem per month</b><div class="small muted">Per student, to keep spending steady</div></div><input class="input num" id="cfgMax" inputmode="numeric" value="' + s.maxRedeemPerMonth + '"></div>' +
         '<div class="setting"><div><b>Delivery time shown to students</b><div class="small muted">Free delivery, paid by HEM</div></div><input class="input" id="cfgDays" value="' + esc(s.deliveryDays) + '"></div>' +
         '<div class="setting"><div><b>Store open for students</b><div class="small muted">When off, students can look but not redeem or order</div></div><label class="switch-box"><input type="checkbox" id="cfgOpen"' + (s.storeOpen ? ' checked' : '') + '><span class="switch' + (s.storeOpen ? '' : ' off') + '"></span></label></div>' +
         '<div class="row" style="margin-top:12px"><button class="btn primary" type="submit">' + I('check') + ' Save changes</button><span class="small muted">Changes apply from the next redemption. Every change is logged.</span></div></form>' +
-      '<div class="stack"><div class="card"><h3>Example</h3><div class="convert" style="margin-top:12px"><div class="cv"><b class="num" style="color:#8A5A00">' + s.minRedeem + '</b><span class="small"><b>points</b></span></div><div class="arrow">' + I('arrow') + '</div><div class="cv"><b class="num" style="color:var(--leaf)">' + rs(s.minRedeem * s.pointValue) + '</b><span class="small"><b>to shop</b></span></div></div></div>' +
+      '<div class="stack"><div class="card"><h3>Example</h3><div class="convert" style="margin-top:12px"><div class="cv"><b class="num" style="color:#8A5A00">100</b><span class="small"><b>points</b></span></div><div class="arrow">' + I('arrow') + '</div><div class="cv"><b class="num" style="color:var(--leaf)">' + rs(100 * s.pointValue) + '</b><span class="small"><b>to shop</b></span></div></div></div>' +
         '<div class="card small"><h3>Change log</h3>' + (j.log.length ? '<ul class="ticks" style="margin-top:8px">' + j.log.map(function (l) {
           return '<li>' + I('clock') + when(l.changed_at) + ' · ' + esc(names[l.key] || l.key) + ' ' + esc(l.old_value || '—') + ' → ' + esc(l.new_value) + ' (' + esc(l.changed_by || '') + ')</li>';
         }).join('') + '</ul>' : '<p class="muted" style="margin-top:8px">No changes yet.</p>') + '</div></div></div>');

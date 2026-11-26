@@ -91,8 +91,8 @@ namespace HemStore.Controllers
         {
             if (m == null) throw new StoreException("Invalid request.");
             if (m.PointValue <= 0 || m.PointValue > 100) throw new StoreException("The value of 1 point must be between ₹0.01 and ₹100.");
-            if (m.MinRedeem < 1 || m.MinRedeem > 100000) throw new StoreException("Please enter the minimum points to redeem.");
-            if (m.MaxRedeemPerMonth < m.MinRedeem) throw new StoreException("The monthly limit must be at least the minimum redeem.");
+            if (m.MinRedeem < 1 || m.MinRedeem > 100000) m.MinRedeem = 1;   // no longer used: students redeem any number of points
+            if (m.MaxRedeemPerMonth < 1 || m.MaxRedeemPerMonth > 1000000) throw new StoreException("Please enter the most points a student can redeem in a month.");
             string days = (m.DeliveryDays ?? "").Trim();
             if (days.Length < 3 || days.Length > 30) throw new StoreException("Please enter the delivery time, e.g. 3-5 days.");
 
