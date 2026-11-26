@@ -14,6 +14,11 @@
 		<PackageReference Include="Npgsql" Version="10.0.3" />
 	</ItemGroup>
 
+	<!-- The database script is built into the app; it runs at start-up (see Services/DbMigrator.cs). -->
+	<ItemGroup>
+		<EmbeddedResource Include="Database\HemStore_Create.sql" LogicalName="HemStore.Database.HemStore_Create.sql" />
+	</ItemGroup>
+
 	<!-- Uploaded files live outside wwwroot and are never published from a developer machine. -->
 	<ItemGroup>
 		<Content Remove="App_Data\**" />

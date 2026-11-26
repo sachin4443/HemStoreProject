@@ -34,32 +34,19 @@ Both sites share one secret (at least 32 characters). Nothing secret is stored i
   the ID and password are right. The store never stores student passwords.
 * **Points** – `GET /api/hemstore-bridge/students/{id}` (signed) returns the profile and total points.
 
-## First-time setup (developer machine)
+## Run on a developer machine
 
-1. **Database** – in pgAdmin create an empty database `HemStore`, open
-   `Database/HemStore_Create.sql` in its Query Tool and run it (F5). It is safe to run again.
-2. **Connection string and shared secret** (kept outside git with *User Secrets*). In Visual Studio:
-   right-click the project → *Manage User Secrets*, or from this folder:
-
-   ```bash
-   dotnet user-secrets set "ConnectionStrings:HemStore" "Host=localhost;Port=5432;Database=HemStore;Username=postgres;Password=YOUR_PASSWORD;Maximum Pool Size=100;Minimum Pool Size=5;Connection Idle Lifetime=300;Command Timeout=60;Keepalive=30;"
-   ```
-
-   ```bash
-   dotnet user-secrets set "HemVirtues:SharedSecret" "THE-SAME-LONG-SECRET-AS-HEM-VIRTUES"
-   ```
-
-   In the HEM Virtues project set the same secret:
-
-   ```bash
-   dotnet user-secrets set "HemStore:SharedSecret" "THE-SAME-LONG-SECRET-AS-HEM-VIRTUES"
-   ```
-
-   Make a secret with e.g. PowerShell `[Convert]::ToBase64String((1..48 | % { Get-Random -Max 256 }))`.
-3. **Run** – `dotnet run` (or F5). The store opens at `https://localhost:7200`; HEM Virtues runs at
-   `https://localhost:7150` (set in `appsettings.Development.json` of both projects).
+1. PostgreSQL must be running (user `postgres`, password as in `appsettings.Development.json`).
+2. Open the project and press F5 (or `dotnet run`). **The database `HemStore` and all its tables are
+   created automatically** at start-up (Services/DbMigrator.cs runs `Database/HemStore_Create.sql`,
+   which only adds what is missing, so every start is safe). Turn it off with `HemStore:AutoMigrate = false`.
+3. The store opens at `https://localhost:7200`. HEM Virtues runs at `https://localhost:7150`.
+   Both `appsettings.Development.json` files already carry the same development shared secret,
+   so the **Redeem in HEM Store** button and the store's student login work at once.
 4. The first visit shows **Create the first admin** (works only while there is no admin).
-   Then add products, or let vendors register at `#v-register` and approve them.
+
+The connection string and the shared secret in `appsettings.Development.json` are for development
+only. Use your own values on the server (below).
 
 ## Publish
 

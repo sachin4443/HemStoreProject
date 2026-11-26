@@ -17,6 +17,24 @@ if (string.IsNullOrWhiteSpace(cs))
         "Connection string 'HemStore' is not set. On a developer machine run: " +
         "dotnet user-secrets set \"ConnectionStrings:HemStore\" \"Host=localhost;Port=5432;Database=HemStore;Username=postgres;Password=...\" " +
         "On the server set the environment variable ConnectionStrings__HemStore.");
+
+// Create the database and its tables when they are missing (safe at every start).
+if (builder.Configuration.GetValue("HemStore:AutoMigrate", true))
+{
+    using var lf = LoggerFactory.Create(l => l.AddConsole());
+    try
+    {
+        await DbMigrator.RunAsync(cs, lf.CreateLogger("HemStore.Database"));
+    }
+    catch (Exception ex) when (ex is NpgsqlException or PostgresException)
+    {
+        var where = new NpgsqlConnectionStringBuilder(cs);
+        throw new InvalidOperationException(
+            $"HEM Store could not set up its database on {where.Host}:{where.Port} as user '{where.Username}'. " +
+            "Check that PostgreSQL is running and that the user name and password in the HemStore connection string are right. " +
+            "Details: " + ex.Message, ex);
+    }
+}
 builder.Services.AddSingleton(new NpgsqlDataSourceBuilder(cs).Build());
 
 builder.Services.AddMemoryCache();
